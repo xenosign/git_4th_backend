@@ -1,6 +1,8 @@
 // @ts-check
 const express = require('express');
 
+const cookieParser = require('cookie-parser');
+
 const app = express();
 const PORT = 4000;
 
@@ -12,6 +14,8 @@ const dataRouter = require('./routes/data');
 const dbBoardRouter = require('./routes/dbBoards');
 
 app.set('view engine', 'ejs');
+
+app.use(cookieParser());
 
 app.use(express.static('public'));
 app.use(express.json());
