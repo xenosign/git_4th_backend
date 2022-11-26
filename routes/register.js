@@ -8,7 +8,7 @@ router.get('/', (req, res) => {
   res.render('register');
 });
 
-router.post('/', async (req, res) => {
+router.post('/', (req, res) => {
   db.userCheck(req.body.id, (data) => {
     if (data.length === 0) {
       db.registerUser(req.body, (result) => {

@@ -18,7 +18,7 @@ const db = {
   },
   writeArticle: (newArticle, cb) => {
     connection.query(
-      `INSERT INTO mydb1.board (TITLE, CONTENT) VALUES ('${newArticle.title}', '${newArticle.content}')`,
+      `INSERT INTO mydb1.board (USERID, TITLE, CONTENT) VALUES ('${newArticle.id}', '${newArticle.title}', '${newArticle.content}')`,
       (err, data) => {
         if (err) throw err;
         cb(data);
