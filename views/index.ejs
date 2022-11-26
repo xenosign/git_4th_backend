@@ -33,13 +33,15 @@
   </div>
 
   <div class="container mt-5">
-    <h1 class="text-center">Hello, Express Service</h1>
-    <h2 class="mt-5 text-center"><a href="/board">게시판 바로가기</a></h2>
+      <h1 class="text-center">Hello, Express Service</h1>
+      <h2 class="mt-2 text-center"><a href="/login">로그인 바로가기</a></h2>
+      <h2 class="mt-2 text-center"><a href="/register">회원가입 바로가기</a></h2>
+      <h2 class="mt-2 text-center"><a href="/dbBoard">게시판 바로가기</a></h2>
   </div>
 
   <script>
     const myModal = new bootstrap.Modal('#exampleModal');
-    if ('<%=popup%>' == '') myModal.show();
+    if ('<%= popup %>' == '') myModal.show();
 
     function modalClose() {
       if (document.getElementById("cookie").checked) {
@@ -55,6 +57,7 @@
       myModal.hide();
     }
   </script>
+
 </body>
 
 </html>

@@ -46,7 +46,7 @@ router.post('/write', (req, res) => {
 // 글 수정 모드 페이지로 이동
 router.get('/modify/:title', (req, res) => {
   const arrIndex = ARTICLE.findIndex(
-    (_article) => _article.title === req.params.title
+    (_article) => _article.title === req.params.title,
   );
   const selectedArticle = ARTICLE[arrIndex];
   res.render('board_modify', { selectedArticle });
@@ -56,7 +56,7 @@ router.get('/modify/:title', (req, res) => {
 router.post('/modify/:title', (req, res) => {
   if (req.body.title && req.body.content) {
     const arrIndex = ARTICLE.findIndex(
-      (_article) => _article.title === req.params.title
+      (_article) => _article.title === req.params.title,
     );
     ARTICLE[arrIndex].title = req.body.title;
     ARTICLE[arrIndex].content = req.body.content;

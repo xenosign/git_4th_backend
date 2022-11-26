@@ -12,6 +12,8 @@ const postRouter = require('./routes/posts');
 const boardRouter = require('./routes/board');
 const dataRouter = require('./routes/data');
 const dbBoardRouter = require('./routes/dbBoards');
+const registerRouter = require('./routes/register');
+const loginRouter = require('./routes/login');
 
 app.set('view engine', 'ejs');
 
@@ -27,6 +29,8 @@ app.use('/posts', postRouter);
 app.use('/board', boardRouter);
 app.use('/data', dataRouter);
 app.use('/dbBoard', dbBoardRouter);
+app.use('/register', registerRouter);
+app.use('/login', loginRouter);
 
 app.use((err, req, res, next) => {
   console.log(err.stack);

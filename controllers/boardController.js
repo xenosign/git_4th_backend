@@ -13,7 +13,7 @@ const db = {
       (err, data) => {
         if (err) throw err;
         cb(data);
-      }
+      },
     );
   },
   writeArticle: (newArticle, cb) => {
@@ -22,7 +22,7 @@ const db = {
       (err, data) => {
         if (err) throw err;
         cb(data);
-      }
+      },
     );
   },
   modifyArticle: (id, modifyArticle, cb) => {
@@ -31,7 +31,7 @@ const db = {
       (err, data) => {
         if (err) throw err;
         cb(data);
-      }
+      },
     );
   },
   deleteArticle: (id, cb) => {
@@ -40,7 +40,7 @@ const db = {
       (err, data) => {
         if (err) throw err;
         cb(data);
-      }
+      },
     );
   },
 };
