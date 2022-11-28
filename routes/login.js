@@ -12,24 +12,33 @@ router.post('/', (req, res) => {
     if (data.length > 0) {
       if (data[0].PASSWORD === req.body.password) {
         req.session.login = true;
-        req.session.userId = req.body.id;
+        req.session.userId = req.body.id; // 쿠키 발행
+        res.cookie('user', req.body.id, {
+          maxAge: 1000 * 10,
+          httpOnly: true,
+          signed: true,
+        });
         res.redirect('/dbBoard');
       } else {
+        res.status(400);
         res.send(
-          '비밀번호가 다릅니다.<br><a href="/login">로그인 페이지로 이동</a>',
+          '비밀번호가 다릅니다.<br><a href="/login">로그인으로 이동</a>',
         );
       }
     } else {
+      res.status(400);
       res.send(
-        '해당 id 가 존재하지 않습니다.<br><a href="/register">회원가입 페이지로 이동</a>',
+        '회원 ID를 찾을 수 없습니다.<br><a href="/login">로그인으로 이동</a>',
       );
     }
   });
 });
 
-router.get('/logout', async (req, res) => {
+// 로그 아웃 처리
+router.get('/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) throw err;
+    res.clearCookie('user');
     res.redirect('/');
   });
 });

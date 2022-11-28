@@ -4,7 +4,8 @@ const db = require('../controllers/boardController');
 const router = express.Router();
 
 function isLogin(req, res, next) {
-  if (req.session.login) {
+  console.log(req.session.login, req.signedCookies.user);
+  if (req.session.login || req.signedCookies.user) {
     next();
   } else {
     res.send('로그인 해주세요.<br><a href="/login">로그인 페이지로 이동</a>');

@@ -4,8 +4,10 @@ const express = require('express');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
 
+require('dotenv').config();
+
 const app = express();
-const PORT = 4000;
+const PORT = process.env.PORT;
 
 const indexRouter = require('./routes');
 // const userRouter = require('./routes/users');
@@ -19,15 +21,12 @@ const userRouter = require('./routes/users');
 
 app.set('view engine', 'ejs');
 
-app.use(cookieParser());
+app.use(cookieParser('tetz'));
 app.use(
   session({
     secret: 'tetz',
     resave: false,
     saveUninitialized: true,
-    cookie: {
-      maxAge: 1000 * 60 * 60,
-    },
   }),
 );
 
