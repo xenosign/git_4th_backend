@@ -1,11 +1,19 @@
 // @ts-check
 const express = require('express');
 const db = require('../controllers/userController');
+const mongoClient = require('../controllers/mongoConnect');
 
 const router = express.Router();
 
 router.get('/', (req, res) => {
   res.render('register');
+});
+
+router.post('/', async (req, res) => {
+  const client = await mongoClient.connect();
+  const cursor = client.db('kdt1').collection('users');
+  const duplicatedUser = await cursor.find({ id: req.body.id }).toArray();
+  console.log(duplicatedUser);
 });
 
 router.post('/', (req, res) => {

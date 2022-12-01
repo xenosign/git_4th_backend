@@ -9,27 +9,44 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
-async function dbConnect() {
-  await client.connect();
+client.connect((err, db) => {
   const users = client.db('kdt4').collection('users');
-  await users.deleteMany({});
-  await users.insertMany([
-    {
-      name: 'pororo',
-      age: 5,
-    },
-    {
-      name: 'loopy',
-      age: 6,
-    },
-    {
-      name: 'crong',
-      age: 4,
-    },
-  ]);
-  const data = users.find({});
-  await data.forEach(console.log);
-  await client.close();
-}
-
-dbConnect();
+  users.deleteMany({}, (err) => {
+    users.insertMany(
+      [
+        {
+          name: 'pororo',
+          age: 5,
+        },
+        {
+          name: 'loopy',
+          age: 6,
+        },
+        {
+          name: 'crong',
+          age: 4,
+        },
+      ],
+      (err, result) => {
+        if (result.acknowledged) {
+          users.updateOne(
+            {
+              name: 'loopy',
+            },
+            {
+              $set: {
+                name: '루피',
+              },
+            },
+            (err) => {
+              const cursor = users.find({});
+              cursor.toArray((err, data) => {
+                console.log(data);
+              });
+            },
+          );
+        }
+      },
+    );
+  });
+});

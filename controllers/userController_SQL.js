@@ -1,4 +1,3 @@
-// @ts-check
 const connection = require('./dbConnect');
 
 const db = {
