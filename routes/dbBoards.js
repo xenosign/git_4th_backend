@@ -4,7 +4,6 @@ const db = require('../controllers/boardController');
 const router = express.Router();
 
 function isLogin(req, res, next) {
-  console.log(req.session.login, req.signedCookies.user);
   if (req.session.login || req.signedCookies.user) {
     next();
   } else {
@@ -12,15 +11,13 @@ function isLogin(req, res, next) {
   }
 }
 
-router.get('/', isLogin, (req, res) => {
-  db.getAllArticles((data) => {
-    const ARTICLE = data;
-    const articleCounts = ARTICLE.length;
-    res.render('dbBoard', {
-      ARTICLE,
-      articleCounts,
-      userId: req.session.userId,
-    });
+router.get('/', isLogin, async (req, res) => {
+  const ARTICLE = await db.getAllArticles();
+  const articleCounts = ARTICLE.length;
+  res.render('dbBoard', {
+    ARTICLE,
+    articleCounts,
+    userId: req.session.userId,
   });
 });
 
@@ -34,62 +31,56 @@ router.get('/write', isLogin, (req, res) => {
   res.render('dbBoard_write');
 });
 
-router.post('/write', isLogin, (req, res) => {
+router.post('/write', isLogin, async (req, res) => {
   if (req.body.title && req.body.content) {
     const newArticle = {
-      id: req.session.userId,
-      title: req.body.title,
-      content: req.body.content,
+      USERID: req.session.userId,
+      TITLE: req.body.title,
+      CONTENT: req.body.content,
     };
-    db.writeArticle(newArticle, (data) => {
-      if (data.protocol41) {
-        res.redirect('/dbBoard');
-      } else {
-        const err = new Error('글 쓰기 실패');
-        throw err;
-      }
-    });
-  } else {
-    const err = new Error('글 제목 또는 내용이 없습니다!');
-    throw err;
-  }
-});
-
-router.get('/modify/:id', isLogin, (req, res) => {
-  db.getArticle(req.params.id, (data) => {
-    if (data.length > 0) {
-      res.render('dbBoard_modify', { selectedArticle: data[0] });
-    }
-  });
-});
-
-router.post('/modify/:id', isLogin, (req, res) => {
-  if (req.body.title && req.body.content) {
-    db.modifyArticle(req.params.id, req.body, (data) => {
-      console.log(data);
-      if (data.protocol41) {
-        res.redirect('/dbBoard');
-      } else {
-        const err = new Error('글 수정 실패');
-        throw err;
-      }
-    });
-  } else {
-    const err = new Error('글 제목 또는 내용이 없습니다!');
-    throw err;
-  }
-});
-
-router.delete('/delete/:id', isLogin, (req, res) => {
-  db.deleteArticle(req.params.id, (data) => {
-    console.log(data);
-    if (data.protocol41) {
-      res.send('삭제 완료!');
+    const writeResult = await db.writeArticle(newArticle);
+    if (writeResult) {
+      res.redirect('/dbBoard');
     } else {
-      const err = new Error('글 삭제 실패');
+      const err = new Error('글 쓰기 실패');
       throw err;
     }
-  });
+  } else {
+    const err = new Error('글 제목 또는 내용이 없습니다!');
+    throw err;
+  }
+});
+
+router.get('/modify/:id', isLogin, async (req, res) => {
+  const findArticle = await db.getArticle(req.params.id);
+  if (findArticle) {
+    res.render('dbBoard_modify', { selectedArticle: findArticle });
+  }
+});
+
+router.post('/modify/:id', isLogin, async (req, res) => {
+  if (req.body.title && req.body.content) {
+    const modifyResult = await db.modifyArticle(req.params.id, req.body);
+    if (modifyResult) {
+      res.redirect('/dbBoard');
+    } else {
+      const err = new Error('글 수정 실패');
+      throw err;
+    }
+  } else {
+    const err = new Error('글 제목 또는 내용이 없습니다!');
+    throw err;
+  }
+});
+
+router.delete('/delete/:id', isLogin, async (req, res) => {
+  const deleteResult = await db.deleteArticle(req.params.id);
+  if (deleteResult) {
+    res.send('삭제 완료!');
+  } else {
+    const err = new Error('글 삭제 실패');
+    throw err;
+  }
 });
 
 module.exports = router;

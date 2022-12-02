@@ -1,47 +1,51 @@
-const connection = require('./dbConnect');
+// @ts-check
+const { ObjectId } = require('mongodb');
+const mongoClient = require('./mongoConnect');
 
 const db = {
-  getAllArticles: (cb) => {
-    connection.query('SELECT * FROM mydb1.board;', (err, data) => {
-      if (err) throw err;
-      cb(data);
-    });
+  getAllArticles: async () => {
+    const client = await mongoClient.connect();
+    const board = client.db('kdt4').collection('board');
+
+    const AllArticlesCursor = board.find({});
+    const AllArticles = await AllArticlesCursor.toArray();
+    return AllArticles;
   },
-  getArticle: (id, cb) => {
-    connection.query(
-      `SELECT * FROM mydb1.board WHERE ID_PK = ${id};`,
-      (err, data) => {
-        if (err) throw err;
-        cb(data);
-      },
-    );
+  getArticle: async (id) => {
+    const client = await mongoClient.connect();
+    const board = client.db('kdt4').collection('board');
+
+    const findArticle = await board.findOne({ _id: ObjectId(id) });
+    if (!findArticle) return false;
+    return findArticle;
   },
-  writeArticle: (newArticle, cb) => {
-    connection.query(
-      `INSERT INTO mydb1.board (USERID, TITLE, CONTENT) VALUES ('${newArticle.id}', '${newArticle.title}', '${newArticle.content}')`,
-      (err, data) => {
-        if (err) throw err;
-        cb(data);
-      },
-    );
+  writeArticle: async (newArticle) => {
+    const client = await mongoClient.connect();
+    const board = client.db('kdt4').collection('board');
+
+    const writeResult = await board.insertOne(newArticle);
+    if (!writeResult.acknowledged) throw new Error('게시글 추가 실패');
+    return true;
   },
-  modifyArticle: (id, modifyArticle, cb) => {
-    connection.query(
-      `UPDATE mydb1.board SET TITLE = '${modifyArticle.title}', CONTENT = '${modifyArticle.content}' WHERE ID_PK = ${id};`,
-      (err, data) => {
-        if (err) throw err;
-        cb(data);
-      },
+  modifyArticle: async (id, modifyArticle) => {
+    const client = await mongoClient.connect();
+    const board = client.db('kdt4').collection('board');
+
+    const updateResult = await board.updateOne(
+      { _id: ObjectId(id) },
+      { $set: { TITLE: modifyArticle.title, CONTENT: modifyArticle.content } },
     );
+    if (!updateResult.acknowledged) throw new Error('수정 실패');
+    return true;
   },
-  deleteArticle: (id, cb) => {
-    connection.query(
-      `DELETE FROM mydb1.board WHERE ID_PK = ${id};`,
-      (err, data) => {
-        if (err) throw err;
-        cb(data);
-      },
-    );
+  deleteArticle: async (id) => {
+    const client = await mongoClient.connect();
+    const board = client.db('kdt4').collection('board');
+
+    const deleteResult = await board.deleteOne({ _id: ObjectId(id) });
+
+    if (!deleteResult.acknowledged) throw new Error('삭제 실패');
+    return true;
   },
 };
 
