@@ -1,31 +1,22 @@
 // @ts-check
-const connect = require('./mongooseConnect');
-const User = require('../models/user');
-
-connect();
+const mongoClient = require('./mongoConnect');
 
 const db = {
   userCheck: async (userId) => {
-    try {
-      const findUser = await User.findOne({ id: userId });
-      console.log(findUser);
-      if (!findUser) return false;
-      return findUser;
-    } catch (err) {
-      console.error(err);
-      return { status: 'unexpected', err };
-    }
+    const client = await mongoClient.connect();
+    const user = client.db('kdt4').collection('user');
+
+    const findUser = await user.findOne({ id: userId });
+    if (!findUser) return false;
+    return findUser;
   },
   registerUser: async (newUser) => {
-    try {
-      const insertResult = await User.create(newUser);
-      if (!insertResult) throw new Error('회원 등록 실패');
-      return { status: 'success' };
-    } catch (err) {
-      console.error(err);
-      if (err.code === 11000) return { status: 'duplicated' };
-      return { status: 'unexpected', err };
-    }
+    const client = await mongoClient.connect();
+    const user = client.db('kdt4').collection('user');
+
+    const insertResult = await user.insertOne(newUser);
+    if (!insertResult.acknowledged) throw new Error('회원 등록 실패');
+    return true;
   },
 };
 

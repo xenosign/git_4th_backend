@@ -9,18 +9,20 @@ router.get('/', (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-  const registerResult = await db.registerUser(req.body);
-  if (registerResult?.status === 'success') {
-    res.send('회원 가입 성공!<br><a href="/login">로그인 페이지로 이동</a>');
-  } else if (registerResult?.status === 'duplicated') {
-    res.status(400);
+  const duplicatedUser = await db.userCheck(req.body.id);
+  if (!duplicatedUser) {
+    const registerResult = await db.registerUser(req.body);
+    if (registerResult) {
+      res.send('회원 가입 성공!<br><a href="/login">로그인 페이지로 이동</a>');
+    } else {
+      res.status(404);
+      res.send(
+        '회원 가입 문제 발생.<br><a href="/register">회원가입 페이지로 이동</a>',
+      );
+    }
+  } else {
     res.send(
       '중복된 id 가 존재합니다.<br><a href="/register">회원가입 페이지로 이동</a>',
-    );
-  } else {
-    res.status(400);
-    res.send(
-      `${registerResult.err} <br><a href="/register">회원가입 페이지로 이동</a>`,
     );
   }
 });

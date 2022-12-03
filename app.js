@@ -7,8 +7,9 @@ const session = require('express-session');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT;
+const { PORT } = process.env;
 
+// 라우터 임포트
 const indexRouter = require('./routes');
 // const userRouter = require('./routes/users');
 const postRouter = require('./routes/posts');
@@ -18,6 +19,7 @@ const dbBoardRouter = require('./routes/dbBoards');
 const registerRouter = require('./routes/register');
 const loginRouter = require('./routes/login');
 const userRouter = require('./routes/users');
+const chatRouter = require('./routes/chat');
 
 app.set('view engine', 'ejs');
 
@@ -43,6 +45,7 @@ app.use('/dbBoard', dbBoardRouter);
 app.use('/register', registerRouter);
 app.use('/login', loginRouter);
 app.use('/user', userRouter);
+app.use('/chat', chatRouter);
 
 app.use((err, req, res, next) => {
   console.log(err.stack);
