@@ -27,13 +27,20 @@ const db = {
     if (!writeResult.acknowledged) throw new Error('게시글 추가 실패');
     return true;
   },
-  modifyArticle: async (id, modifyArticle) => {
+  modifyArticle: async (id, modifyArticle, img) => {
     const client = await mongoClient.connect();
     const board = client.db('kdt4').collection('board');
 
+    const finalModifyArticle = {
+      TITLE: modifyArticle.title,
+      CONTENT: modifyArticle.content,
+    };
+
+    if (img !== null) finalModifyArticle.IMAGE = img;
+
     const updateResult = await board.updateOne(
       { _id: ObjectId(id) },
-      { $set: { TITLE: modifyArticle.title, CONTENT: modifyArticle.content } },
+      { $set: finalModifyArticle },
     );
     if (!updateResult.acknowledged) throw new Error('수정 실패');
     return true;

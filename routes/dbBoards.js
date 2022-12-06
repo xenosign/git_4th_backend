@@ -1,5 +1,21 @@
 const express = require('express');
+const multer = require('multer');
+const fs = require('fs');
 const db = require('../controllers/boardController');
+
+const dir = './uploads';
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.fieldname + '_' + Date.now());
+  },
+});
+const limits = {
+  fileSize: 1024 * 1028 * 2,
+};
+const upload = multer({ storage, limits });
 
 const router = express.Router();
 
@@ -31,12 +47,16 @@ router.get('/write', isLogin, (req, res) => {
   res.render('dbBoard_write');
 });
 
-router.post('/write', isLogin, async (req, res) => {
+router.post('/write', isLogin, upload.single('img'), async (req, res) => {
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+  // 이미지 파일 확인
+  console.log(req.file);
   if (req.body.title && req.body.content) {
     const newArticle = {
       USERID: req.session.userId,
       TITLE: req.body.title,
       CONTENT: req.body.content,
+      IMAGE: req.file ? req.file.filename : null,
     };
     const writeResult = await db.writeArticle(newArticle);
     if (writeResult) {
@@ -58,9 +78,13 @@ router.get('/modify/:id', isLogin, async (req, res) => {
   }
 });
 
-router.post('/modify/:id', isLogin, async (req, res) => {
+router.post('/modify/:id', isLogin, upload.single('img'), async (req, res) => {
   if (req.body.title && req.body.content) {
-    const modifyResult = await db.modifyArticle(req.params.id, req.body);
+    const modifyResult = await db.modifyArticle(
+      req.params.id,
+      req.body,
+      req.file,
+    );
     if (modifyResult) {
       res.redirect('/dbBoard');
     } else {
