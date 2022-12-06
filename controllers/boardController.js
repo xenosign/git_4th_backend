@@ -28,22 +28,27 @@ const db = {
     return true;
   },
   modifyArticle: async (id, modifyArticle, img) => {
-    const client = await mongoClient.connect();
-    const board = client.db('kdt4').collection('board');
+    try {
+      const client = await mongoClient.connect();
+      const board = client.db('kdt4').collection('board');
 
-    const finalModifyArticle = {
-      TITLE: modifyArticle.title,
-      CONTENT: modifyArticle.content,
-    };
+      const finalModifyArticle = {
+        TITLE: modifyArticle.title,
+        CONTENT: modifyArticle.content,
+      };
 
-    if (img !== null) finalModifyArticle.IMAGE = img;
+      if (img !== undefined) finalModifyArticle.IMAGE = img?.filename;
 
-    const updateResult = await board.updateOne(
-      { _id: ObjectId(id) },
-      { $set: finalModifyArticle },
-    );
-    if (!updateResult.acknowledged) throw new Error('수정 실패');
-    return true;
+      const updateResult = await board.updateOne(
+        { _id: ObjectId(id) },
+        { $set: finalModifyArticle },
+      );
+
+      if (!updateResult.acknowledged) throw new Error('수정 실패');
+      return true;
+    } catch (err) {
+      console.error(err);
+    }
   },
   deleteArticle: async (id) => {
     const client = await mongoClient.connect();

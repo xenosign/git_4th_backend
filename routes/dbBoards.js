@@ -50,7 +50,6 @@ router.get('/write', isLogin, (req, res) => {
 router.post('/write', isLogin, upload.single('img'), async (req, res) => {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir);
   // 이미지 파일 확인
-  console.log(req.file);
   if (req.body.title && req.body.content) {
     const newArticle = {
       USERID: req.session.userId,
@@ -79,21 +78,26 @@ router.get('/modify/:id', isLogin, async (req, res) => {
 });
 
 router.post('/modify/:id', isLogin, upload.single('img'), async (req, res) => {
-  if (req.body.title && req.body.content) {
-    const modifyResult = await db.modifyArticle(
-      req.params.id,
-      req.body,
-      req.file,
-    );
-    if (modifyResult) {
-      res.redirect('/dbBoard');
+  try {
+    if (req.body.title && req.body.content) {
+      const modifyResult = await db.modifyArticle(
+        req.params.id,
+        req.body,
+        req.file,
+      );
+      if (modifyResult) {
+        res.redirect('/dbBoard');
+      } else {
+        const err = new Error('글 수정 실패');
+        throw err;
+      }
     } else {
-      const err = new Error('글 수정 실패');
+      const err = new Error('글 제목 또는 내용이 없습니다!');
       throw err;
     }
-  } else {
-    const err = new Error('글 제목 또는 내용이 없습니다!');
-    throw err;
+  } catch (err) {
+    console.error(err);
+    res.send(`${err}<br><a href="/">메인 페이지로 이동</a>`);
   }
 });
 
